@@ -16,7 +16,9 @@ export default function HomePage() {
       <section className="bg-navy-gradient text-white">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <img src={logoIcon} alt="" className="mx-auto mb-6 h-16 w-16" />
+            <span className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 p-2 shadow-lg">
+              <img src={logoIcon} alt="" className="h-full w-full" />
+            </span>
             <p className="mb-3 flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-widest text-brand-goldLight">
               <BadgeCheck size={16} /> Comparador y Auditor Inteligente de Servicios
             </p>

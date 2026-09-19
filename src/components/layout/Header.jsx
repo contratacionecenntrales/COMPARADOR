@@ -10,15 +10,9 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-navy-gradient shadow-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2.5">
-          <img src={logoIcon} alt="" className="h-9 w-9 sm:h-10 sm:w-10" />
-          <span className="leading-tight">
-            <span className="block text-sm font-bold text-white sm:text-base">
-              Integral <span className="text-brand-goldLight">Connection</span>
-            </span>
-            <span className="block text-[10px] font-semibold uppercase tracking-widest text-slate-300 sm:text-xs">
-              Consulting
-            </span>
+        <Link to="/" className="flex items-center">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-50 p-1.5 shadow-md sm:h-12 sm:w-12">
+            <img src={logoIcon} alt={COMPANY.name} className="h-full w-full" />
           </span>
         </Link>
 

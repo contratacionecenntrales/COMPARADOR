@@ -11,7 +11,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           <div>
             <div className="mb-3 flex items-center gap-2">
-              <img src={logoIcon} alt="" className="h-9 w-9" />
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 p-1">
+                <img src={logoIcon} alt="" className="h-full w-full" />
+              </span>
               <span className="text-base font-bold text-white">{COMPANY.name}</span>
             </div>
             <p className="text-sm text-slate-400">
