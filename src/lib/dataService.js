@@ -66,3 +66,41 @@ export async function listarAuditorias({ sector, limit = 50 } = {}) {
     return []
   }
 }
+
+// ----------------------------------------------------------------------------
+// Agentes (módulo de roles/equipos: admin, jefe_equipo, gestor_comercial)
+// ----------------------------------------------------------------------------
+export async function listarAgentes() {
+  return api.get('usuarios.php')
+}
+
+export async function crearAgente(payload) {
+  return api.post('usuarios.php', payload)
+}
+
+export async function actualizarAgente(id, payload) {
+  return api.put('usuarios.php', payload, { id })
+}
+
+export async function eliminarAgente(id) {
+  return api.delete('usuarios.php', { id })
+}
+
+// ----------------------------------------------------------------------------
+// Calendario (agenda diaria de comerciales)
+// ----------------------------------------------------------------------------
+export async function listarEventos({ desde, hasta, usuario_id } = {}) {
+  return api.get('calendario.php', { desde, hasta, usuario_id })
+}
+
+export async function crearEvento(payload) {
+  return api.post('calendario.php', payload)
+}
+
+export async function actualizarEvento(id, payload) {
+  return api.put('calendario.php', payload, { id })
+}
+
+export async function eliminarEvento(id) {
+  return api.delete('calendario.php', { id })
+}

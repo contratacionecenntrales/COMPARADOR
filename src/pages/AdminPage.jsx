@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
-import { LogOut, Zap, Smartphone, ShieldCheck, History, Loader2 } from 'lucide-react'
+import { LogOut, Zap, Smartphone, ShieldCheck, History, Loader2, Users, CalendarDays } from 'lucide-react'
 import Layout from '../components/layout/Layout'
 import AdminLogin from '../components/admin/AdminLogin'
 import TariffTable from '../components/admin/TariffTable'
 import AuditsHistory from '../components/admin/AuditsHistory'
+import AgentsPanel from '../components/admin/AgentsPanel'
+import CalendarPanel from '../components/admin/CalendarPanel'
 import {
   COLUMNAS_ENERGIA,
   FILA_VACIA_ENERGIA,
@@ -14,16 +16,23 @@ import {
 } from '../components/admin/tariffColumns'
 import { obtenerUsuarioActual, cerrarSesion } from '../lib/authService'
 
-const TABS = [
-  { key: 'energia', label: 'Energía', icon: Zap },
-  { key: 'telefonia', label: 'Telefonía', icon: Smartphone },
-  { key: 'alarmas', label: 'Alarmas', icon: ShieldCheck },
-  { key: 'historico', label: 'Histórico de auditorías', icon: History },
-]
+function tabsPara(rol) {
+  const tabs = [
+    { key: 'calendario', label: 'Calendario', icon: CalendarDays },
+    { key: 'energia', label: 'Energía', icon: Zap },
+    { key: 'telefonia', label: 'Telefonía', icon: Smartphone },
+    { key: 'alarmas', label: 'Alarmas', icon: ShieldCheck },
+    { key: 'historico', label: 'Histórico de auditorías', icon: History },
+  ]
+  if (rol === 'admin' || rol === 'jefe_equipo') {
+    tabs.splice(1, 0, { key: 'agentes', label: 'Agentes', icon: Users })
+  }
+  return tabs
+}
 
 export default function AdminPage() {
   const [usuario, setUsuario] = useState(undefined) // undefined = comprobando
-  const [tab, setTab] = useState('energia')
+  const [tab, setTab] = useState('calendario')
 
   useEffect(() => {
     obtenerUsuarioActual().then(setUsuario)
@@ -47,6 +56,8 @@ export default function AdminPage() {
     )
   }
 
+  const tabs = tabsPara(usuario.rol)
+
   return (
     <Layout>
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
@@ -54,7 +65,7 @@ export default function AdminPage() {
           <div>
             <h1 className="text-xl font-bold text-brand-navy">Panel de Configuración</h1>
             <p className="text-sm text-slate-500">
-              Edita precios, peajes, términos y comisiones sin tocar código. Sesión: {usuario.email}
+              Sesión: {usuario.email} · {usuario.rol === 'admin' ? 'Administrador' : usuario.rol === 'jefe_equipo' ? 'Jefe de equipo' : 'Gestor comercial'}
             </p>
           </div>
           <button
@@ -69,7 +80,7 @@ export default function AdminPage() {
         </div>
 
         <div className="mb-6 flex flex-wrap gap-2 border-b border-slate-200 pb-2">
-          {TABS.map(({ key, label, icon: Icon }) => (
+          {tabs.map(({ key, label, icon: Icon }) => (
             <button
               key={key}
               onClick={() => setTab(key)}
@@ -82,6 +93,8 @@ export default function AdminPage() {
           ))}
         </div>
 
+        {tab === 'calendario' && <CalendarPanel usuarioActual={usuario} />}
+        {tab === 'agentes' && (usuario.rol === 'admin' || usuario.rol === 'jefe_equipo') && <AgentsPanel usuarioActual={usuario} />}
         {tab === 'energia' && (
           <TariffTable catalogo="energia" title="Tarifas de energía (luz y gas)" columns={COLUMNAS_ENERGIA} emptyRow={FILA_VACIA_ENERGIA} />
         )}

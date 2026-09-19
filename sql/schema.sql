@@ -14,15 +14,53 @@ SET time_zone = '+00:00';
 
 -- ----------------------------------------------------------------------------
 -- admin_usuarios — equipo interno con acceso al Panel de Configuración
+--
+-- Jerarquía de roles (para el módulo de Agentes y el Calendario):
+--   admin            → ve y gestiona a todo el mundo.
+--   jefe_equipo      → ve y gestiona a los gestor_comercial cuyo
+--                       supervisor_id apunta a él (su equipo, configurable).
+--   gestor_comercial → solo ve/gestiona lo suyo. Nunca ve lo de su superior.
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS admin_usuarios (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(150) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   nombre VARCHAR(150) DEFAULT NULL,
-  rol VARCHAR(20) NOT NULL DEFAULT 'admin',
+  rol ENUM('admin', 'jefe_equipo', 'gestor_comercial') NOT NULL DEFAULT 'gestor_comercial',
+  supervisor_id INT UNSIGNED DEFAULT NULL,
   activo TINYINT(1) NOT NULL DEFAULT 1,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_admin_usuarios_supervisor FOREIGN KEY (supervisor_id)
+    REFERENCES admin_usuarios (id) ON DELETE SET NULL,
+  INDEX idx_admin_usuarios_supervisor (supervisor_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------------------------
+-- eventos_calendario — agenda diaria de los comerciales (llamadas, visitas,
+-- seguimientos...). Visibilidad controlada por la jerarquía de admin_usuarios.
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS eventos_calendario (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT UNSIGNED NOT NULL,   -- comercial al que pertenece el evento
+  creado_por INT UNSIGNED NOT NULL,   -- quién lo creó (puede ser su jefe o admin)
+
+  titulo VARCHAR(200) NOT NULL,
+  descripcion TEXT,
+  tipo ENUM('llamada', 'visita', 'seguimiento', 'reunion', 'otro') NOT NULL DEFAULT 'otro',
+  cliente_nombre VARCHAR(150) DEFAULT NULL,
+
+  fecha DATE NOT NULL,
+  hora_inicio TIME DEFAULT NULL,
+  hora_fin TIME DEFAULT NULL,
+  completado TINYINT(1) NOT NULL DEFAULT 0,
+
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_eventos_usuario FOREIGN KEY (usuario_id) REFERENCES admin_usuarios (id) ON DELETE CASCADE,
+  CONSTRAINT fk_eventos_creador FOREIGN KEY (creado_por) REFERENCES admin_usuarios (id) ON DELETE CASCADE,
+  INDEX idx_eventos_usuario_fecha (usuario_id, fecha)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------

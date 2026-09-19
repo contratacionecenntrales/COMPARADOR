@@ -22,8 +22,10 @@ nube de terceros.
 
 ```
 sql/
-  schema.sql                Tablas (importar primero desde phpMyAdmin)
-  seed.sql                  Tarifas iniciales + usuario admin (importar después)
+  schema.sql                 Tablas (importar primero desde phpMyAdmin)
+  seed.sql                   Tarifas iniciales + usuario admin (importar después)
+  002_agentes_calendario.sql Migración incremental (solo si ya tenías schema.sql
+                              importado antes de que existiera Agentes/Calendario)
 api/                         Backend PHP (sube esta carpeta tal cual a Hostalia)
   config.example.php         Plantilla de credenciales MySQL → copiar a config.php
   db.php                     Conexión PDO
@@ -97,9 +99,15 @@ contraseña — los pedirás en el paso 4.
 Entra en phpMyAdmin (enlace disponible desde el panel de Hostalia), selecciona
 tu base de datos y en la pestaña **Importar**:
 
-1. Sube y ejecuta `sql/schema.sql` (crea las tablas).
+1. Sube y ejecuta `sql/schema.sql` (crea las tablas, incluidas Agentes y
+   Calendario).
 2. Sube y ejecuta `sql/seed.sql` (carga las tarifas iniciales y un usuario
    administrador de ejemplo).
+
+Si ya tenías una instalación previa (schema.sql importado antes de que
+existieran los módulos de Agentes/Calendario), en vez de repetir el paso 1
+ejecuta solo `sql/002_agentes_calendario.sql` para actualizar sin perder tus
+tarifas ni auditorías.
 
 El usuario admin de ejemplo es `admin@integralconnectionconsulting.com` con
 contraseña `CambiaEstaClave123`. **Cámbiala antes de usar en producción**
@@ -197,6 +205,31 @@ Consulting puede:
   sin tocar código — directamente desde la tabla editable o desde phpMyAdmin.
 - Añadir o eliminar tarifas, marcar cuáles están activas o destacadas.
 - Consultar el histórico de auditorías generadas (`auditorias_clientes`).
+
+### Agentes y equipos (roles jerárquicos)
+
+Además del acceso a tarifas, cada usuario de `admin_usuarios` tiene un rol:
+
+- **admin** — ve y gestiona a todos los agentes y sus calendarios.
+- **jefe_equipo** — ve y gestiona a los `gestor_comercial` cuyo `supervisor_id`
+  le apunta a él (su equipo). Puede dar de alta nuevos gestores en su equipo,
+  pero no ve a otros equipos ni al resto de administradores.
+- **gestor_comercial** — solo ve y gestiona lo suyo. Nunca ve la agenda ni los
+  datos de su superior ni de sus compañeros.
+
+La pestaña **Agentes** (alta/baja, cambio de rol, asignación de supervisor)
+solo es visible para `admin` y `jefe_equipo`. Un `jefe_equipo` que crea un
+agente nuevo siempre lo crea como `gestor_comercial` de su propio equipo — el
+backend lo fuerza aunque el formulario mandase otra cosa, para que no se
+pueda escalar privilegios desde el propio panel.
+
+### Calendario (gestión diaria de comerciales)
+
+Pestaña **Calendario**: agenda por día (llamadas, visitas, seguimientos,
+reuniones...) por comercial. `admin` y `jefe_equipo` pueden elegir "Todo el
+equipo" o un comercial concreto en el selector; un `gestor_comercial` solo ve
+y edita su propia agenda. La visibilidad se aplica también en el backend
+(`api/calendario.php`), no solo en la interfaz.
 
 ## Motor de cálculo
 
