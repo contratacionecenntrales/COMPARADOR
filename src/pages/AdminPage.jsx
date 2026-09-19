@@ -12,8 +12,7 @@ import {
   COLUMNAS_ALARMAS,
   FILA_VACIA_ALARMAS,
 } from '../components/admin/tariffColumns'
-import { obtenerSesionActual, onAuthStateChange, cerrarSesion } from '../lib/authService'
-import { isSupabaseConfigured } from '../lib/supabaseClient'
+import { obtenerUsuarioActual, cerrarSesion } from '../lib/authService'
 
 const TABS = [
   { key: 'energia', label: 'Energía', icon: Zap },
@@ -23,16 +22,14 @@ const TABS = [
 ]
 
 export default function AdminPage() {
-  const [session, setSession] = useState(undefined) // undefined = comprobando
+  const [usuario, setUsuario] = useState(undefined) // undefined = comprobando
   const [tab, setTab] = useState('energia')
 
   useEffect(() => {
-    obtenerSesionActual().then(setSession)
-    const { data } = onAuthStateChange(setSession)
-    return () => data.subscription.unsubscribe()
+    obtenerUsuarioActual().then(setUsuario)
   }, [])
 
-  if (session === undefined) {
+  if (usuario === undefined) {
     return (
       <Layout>
         <div className="flex items-center justify-center gap-2 py-24 text-slate-500">
@@ -42,10 +39,10 @@ export default function AdminPage() {
     )
   }
 
-  if (!session) {
+  if (!usuario) {
     return (
       <Layout>
-        <AdminLogin onLoggedIn={setSession} />
+        <AdminLogin onLoggedIn={setUsuario} />
       </Layout>
     )
   }
@@ -57,25 +54,19 @@ export default function AdminPage() {
           <div>
             <h1 className="text-xl font-bold text-brand-navy">Panel de Configuración</h1>
             <p className="text-sm text-slate-500">
-              Edita precios, peajes, términos y comisiones sin tocar código. Sesión: {session.user?.email}
+              Edita precios, peajes, términos y comisiones sin tocar código. Sesión: {usuario.email}
             </p>
           </div>
           <button
             onClick={async () => {
               await cerrarSesion()
-              setSession(null)
+              setUsuario(null)
             }}
             className="btn-ghost"
           >
             <LogOut size={16} /> Cerrar sesión
           </button>
         </div>
-
-        {!isSupabaseConfigured && (
-          <p className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700">
-            Estás viendo el panel en modo demo. Conecta Supabase para persistir cambios de precios.
-          </p>
-        )}
 
         <div className="mb-6 flex flex-wrap gap-2 border-b border-slate-200 pb-2">
           {TABS.map(({ key, label, icon: Icon }) => (

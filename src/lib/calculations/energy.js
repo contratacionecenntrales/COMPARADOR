@@ -1,4 +1,4 @@
-import { IVA, IMPUESTO_ELECTRICIDAD } from '../constants'
+import { IVA, IMPUESTO_ELECTRICIDAD, BONO_SOCIAL_DIA } from '../constants'
 
 const DIAS_ANIO = 365
 
@@ -41,8 +41,9 @@ export function calcularCosteLuz(input, precios) {
   const terminoPotencia = desglosePeriodos.reduce((sum, d) => sum + d.costePotencia, 0)
   const terminoFijo = ((Number(precios.terminoFijoMensual) || 0) / 30) * diasFactura
   const alquilerEquipo = (Number(precios.alquilerEquipoDia) || 0) * diasFactura
+  const financiacionBonoSocial = BONO_SOCIAL_DIA * diasFactura
 
-  const baseImponible = terminoEnergia + terminoPotencia + terminoFijo + alquilerEquipo
+  const baseImponible = terminoEnergia + terminoPotencia + terminoFijo + alquilerEquipo + financiacionBonoSocial
   const impuestoElectricidad = baseImponible * IMPUESTO_ELECTRICIDAD
   const baseConImpuesto = baseImponible + impuestoElectricidad
   const iva = baseConImpuesto * IVA
@@ -57,6 +58,7 @@ export function calcularCosteLuz(input, precios) {
     terminoPotencia,
     terminoFijo,
     alquilerEquipo,
+    financiacionBonoSocial,
     baseImponible,
     impuestoElectricidad,
     iva,

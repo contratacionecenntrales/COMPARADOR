@@ -1,8 +1,8 @@
-// Copia en JS de la semilla de supabase/migrations/0002_seed.sql.
-// Se usa como respaldo local cuando la app corre sin credenciales de Supabase
-// configuradas (demo / desarrollo), para que el comparador sea funcional
-// desde el primer arranque. En producción, estos datos viven en Supabase y
-// se editan desde el Panel de Administración.
+// Copia en JS de la semilla de sql/seed.sql.
+// Se usa como respaldo local cuando la API PHP no responde (demo / desarrollo
+// sin servidor PHP en marcha), para que el comparador sea funcional desde el
+// primer arranque. En producción, estos datos viven en MySQL (Hostalia) y se
+// editan desde el Panel de Administración.
 
 let uid = 0
 const id = () => `local-${++uid}`
@@ -116,30 +116,55 @@ export const FALLBACK_ALARMAS = [
   {
     id: id(), nombre_kit: 'IC Básica Hogar', tipo_kit: 'basica',
     descripcion: 'Central de alarma + 2 detectores de movimiento + mando, conexión app móvil y CRA 24h.',
+    equipamiento: [
+      '1 panel de control con transmisión GPRS/IP', '1 mando a distancia',
+      '2 detectores de movimiento', '1 sirena interior', 'Conexión a Central Receptora de Alarmas 24h',
+    ],
     num_camaras: 0, num_sensores: 2, num_mandos: 1, conexion_movil: true, central_receptora: true,
     cuota_mensual: 19.90, coste_instalacion: 0, permanencia_meses: 24, destacada: false, activo: true,
   },
   {
     id: id(), nombre_kit: 'IC Cámaras Smart', tipo_kit: 'camaras',
     descripcion: 'Kit con 2 cámaras HD interior/exterior, verificación por vídeo y detección inteligente.',
+    equipamiento: [
+      '1 panel de control con transmisión GPRS/IP', '1 mando a distancia',
+      '2 cámaras HD con verificación por vídeo', '3 detectores de movimiento', '1 sirena interior',
+      'Conexión a Central Receptora de Alarmas 24h',
+    ],
     num_camaras: 2, num_sensores: 3, num_mandos: 1, conexion_movil: true, central_receptora: true,
     cuota_mensual: 29.90, coste_instalacion: 0, permanencia_meses: 24, destacada: true, activo: true,
   },
   {
     id: id(), nombre_kit: 'IC Gama Alta 360', tipo_kit: 'gama_alta',
     descripcion: 'Protección integral: 4 cámaras HD, 6 sensores, sirena exterior y videoverificación 24h.',
+    equipamiento: [
+      '1 panel de control con transmisión GPRS/IP', '2 mandos a distancia',
+      '4 cámaras HD con verificación por vídeo', '6 detectores de movimiento',
+      '1 sirena exterior de alta potencia', '1 detector magnético de apertura',
+      'Conexión a Central Receptora de Alarmas 24h',
+    ],
     num_camaras: 4, num_sensores: 6, num_mandos: 2, conexion_movil: true, central_receptora: true,
     cuota_mensual: 39.90, coste_instalacion: 0, permanencia_meses: 24, destacada: false, activo: true,
   },
   {
     id: id(), nombre_kit: 'IC Flex Sin Permanencia', tipo_kit: 'basica',
     descripcion: 'Kit básico sin permanencia, instalación con coste reducido a cambio de libertad total.',
+    equipamiento: [
+      '1 panel de control con transmisión GPRS/IP', '1 mando a distancia',
+      '3 detectores de movimiento', '1 sirena interior', 'Conexión a Central Receptora de Alarmas 24h',
+    ],
     num_camaras: 0, num_sensores: 3, num_mandos: 1, conexion_movil: true, central_receptora: true,
     cuota_mensual: 24.90, coste_instalacion: 149.0, permanencia_meses: 0, destacada: false, activo: true,
   },
   {
     id: id(), nombre_kit: 'IC Comercial Negocio', tipo_kit: 'comercial',
     descripcion: 'Solución para locales y oficinas: 6 cámaras, sensores perimetrales y apertura remota.',
+    equipamiento: [
+      '1 panel de control con transmisión GPRS/IP', '2 mandos/lectores de llave electrónicos',
+      '6 cámaras HD con verificación por vídeo', '8 detectores de movimiento perimetrales',
+      '1 sirena exterior de alta potencia', 'Apertura remota y control de accesos',
+      'Conexión a Central Receptora de Alarmas 24h',
+    ],
     num_camaras: 6, num_sensores: 8, num_mandos: 2, conexion_movil: true, central_receptora: true,
     cuota_mensual: 59.90, coste_instalacion: 0, permanencia_meses: 24, destacada: false, activo: true,
   },

@@ -1,11 +1,5 @@
-import { supabase, isSupabaseConfigured } from './supabaseClient'
+import { api } from './apiClient'
 import { FALLBACK_ENERGIA, FALLBACK_TELEFONIA, FALLBACK_ALARMAS } from './fallbackData'
-
-const TABLES = {
-  energia: 'tarifa_energia',
-  telefonia: 'tarifa_telefonia',
-  alarmas: 'tarifa_alarmas',
-}
 
 const FALLBACKS = {
   energia: FALLBACK_ENERGIA,
@@ -13,66 +7,62 @@ const FALLBACKS = {
   alarmas: FALLBACK_ALARMAS,
 }
 
-const ORDER_COL = {
-  energia: 'nombre_tarifa',
-  telefonia: 'nombre_tarifa',
-  alarmas: 'nombre_kit',
+/**
+ * Comprueba si la API PHP (api/ping.php) responde. Se usa solo para decidir
+ * si mostrar el aviso de "modo demo" en la interfaz; los propios métodos de
+ * abajo ya hacen su propio fallback a datos locales si la API no responde.
+ */
+export async function comprobarConexionAPI() {
+  try {
+    const res = await api.get('ping.php')
+    return Boolean(res?.ok)
+  } catch {
+    return false
+  }
 }
 
 /**
- * Lista tarifas de un catálogo. Si Supabase no está configurado, usa el
- * dataset local (fallbackData.js) para que el comparador funcione desde
- * el primer arranque sin necesidad de backend.
+ * Lista tarifas de un catálogo ('energia' | 'telefonia' | 'alarmas').
+ * Si la API PHP no está disponible (backend caído o no configurado en este
+ * entorno), recurre al dataset local de ejemplo para que el comparador
+ * siga siendo funcional en modo demo.
  */
 export async function listarTarifas(catalogo, { soloActivas = true } = {}) {
-  if (!isSupabaseConfigured) {
-    const data = FALLBACKS[catalogo]
+  try {
+    return await api.get('tarifas.php', { catalogo, soloActivas: soloActivas ? '1' : '0' })
+  } catch (err) {
+    if (err.status) throw err // la API respondió con un error real (p.ej. 401 en admin): no lo ocultes
+    const data = FALLBACKS[catalogo] || []
     return soloActivas ? data.filter((t) => t.activo) : data
   }
-
-  let query = supabase.from(TABLES[catalogo]).select('*').order(ORDER_COL[catalogo])
-  if (soloActivas) query = query.eq('activo', true)
-
-  const { data, error } = await query
-  if (error) throw error
-  return data
 }
 
 export async function crearTarifa(catalogo, payload) {
-  if (!isSupabaseConfigured) throw new Error('Supabase no está configurado en este entorno.')
-  const { data, error } = await supabase.from(TABLES[catalogo]).insert(payload).select().single()
-  if (error) throw error
-  return data
+  return api.post('tarifas.php', payload, { catalogo })
 }
 
 export async function actualizarTarifa(catalogo, id, payload) {
-  if (!isSupabaseConfigured) throw new Error('Supabase no está configurado en este entorno.')
-  const { data, error } = await supabase.from(TABLES[catalogo]).update(payload).eq('id', id).select().single()
-  if (error) throw error
-  return data
+  return api.put('tarifas.php', payload, { catalogo, id })
 }
 
 export async function eliminarTarifa(catalogo, id) {
-  if (!isSupabaseConfigured) throw new Error('Supabase no está configurado en este entorno.')
-  const { error } = await supabase.from(TABLES[catalogo]).delete().eq('id', id)
-  if (error) throw error
+  return api.delete('tarifas.php', { catalogo, id })
 }
 
 export async function guardarAuditoria(auditoria) {
-  if (!isSupabaseConfigured) {
-    console.info('[demo] Auditoría no persistida (Supabase no configurado):', auditoria)
+  try {
+    return await api.post('auditorias.php', auditoria)
+  } catch (err) {
+    if (err.status) throw err
+    console.info('[demo] Auditoría no persistida (API no disponible):', auditoria)
     return { id: `local-${Date.now()}`, ...auditoria }
   }
-  const { data, error } = await supabase.from('auditorias_clientes').insert(auditoria).select().single()
-  if (error) throw error
-  return data
 }
 
 export async function listarAuditorias({ sector, limit = 50 } = {}) {
-  if (!isSupabaseConfigured) return []
-  let query = supabase.from('auditorias_clientes').select('*').order('created_at', { ascending: false }).limit(limit)
-  if (sector) query = query.eq('sector', sector)
-  const { data, error } = await query
-  if (error) throw error
-  return data
+  try {
+    return await api.get('auditorias.php', { sector, limit })
+  } catch {
+    return []
+  }
 }

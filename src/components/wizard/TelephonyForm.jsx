@@ -10,7 +10,9 @@ export const DEFAULT_TELEFONIA = {
   numLineasMoviles: 1,
   gbPorLineaMovil: 30,
   datosIlimitadosDeseado: false,
-  precioActualMensual: 55,
+  cuotaMensualActual: 55,
+  consumosActual: 0,
+  otrosConceptosActual: 0,
 }
 
 function NumberField(props) {
@@ -72,7 +74,7 @@ export default function TelephonyForm({ telefonia, onChange }) {
         </div>
       </Card>
 
-      <Card title="Factura actual" subtitle="Lo que pagas hoy por este conjunto de servicios">
+      <Card title="Factura actual" subtitle="Desglose tal y como aparece en la factura (ej. resumen Movistar Fusión), IVA incluido">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <TextField
             label="Operador actual"
@@ -81,10 +83,22 @@ export default function TelephonyForm({ telefonia, onChange }) {
             onChange={(e) => set({ operadorActual: e.target.value })}
           />
           <NumberField
-            label="Precio mensual actual (total)"
+            label="Cuotas mensuales"
             suffix="€/mes"
-            value={data.precioActualMensual}
-            onChange={(e) => set({ precioActualMensual: e.target.value })}
+            value={data.cuotaMensualActual}
+            onChange={(e) => set({ cuotaMensualActual: e.target.value })}
+          />
+          <NumberField
+            label="Consumos (fuera de bono)"
+            suffix="€"
+            value={data.consumosActual}
+            onChange={(e) => set({ consumosActual: e.target.value })}
+          />
+          <NumberField
+            label="Otros conceptos (roaming, servicios...)"
+            suffix="€"
+            value={data.otrosConceptosActual}
+            onChange={(e) => set({ otrosConceptosActual: e.target.value })}
           />
         </div>
       </Card>

@@ -1,3 +1,5 @@
+import { IVA } from '../constants'
+
 /**
  * Motor de comparación de alarmas. Se busca el kit de nuestro catálogo con
  * igual o mejor equipamiento (cámaras y sensores) al menor coste mensual.
@@ -28,6 +30,25 @@ export function encontrarMejorKit(datosCliente, tarifasCatalogo) {
   }
 }
 
+/**
+ * Descompone un importe total (cuota + pago al contado, IVA incluido como
+ * se comercializa) en Base Imponible + IVA(21%) + Total a pagar, igual que
+ * el bloque final de una factura de alarmas tipo Securitas Direct.
+ */
+function desgloseFacturaAlarma({ cuota = 0, pagoContado = 0 }) {
+  const totalPorServicios = Number(cuota) + Number(pagoContado)
+  const base = totalPorServicios / (1 + IVA)
+  const iva = totalPorServicios - base
+  return {
+    cuota: Number(cuota),
+    pagoContado: Number(pagoContado),
+    totalPorServicios,
+    base,
+    iva,
+    totalAPagar: totalPorServicios,
+  }
+}
+
 export function compararAlarmas(datosCliente, tarifasCatalogo) {
   const costeActualMensual = Number(datosCliente.cuotaMensualActual) || 0
   const { kit, cubreEquipamiento } = encontrarMejorKit(datosCliente, tarifasCatalogo)
@@ -37,6 +58,12 @@ export function compararAlarmas(datosCliente, tarifasCatalogo) {
   const ahorroAnual = ahorroMensual * 12
   const ahorroPorcentaje = costeActualMensual > 0 ? (ahorroMensual / costeActualMensual) * 100 : 0
 
+  const desgloseActual = desgloseFacturaAlarma({ cuota: costeActualMensual })
+  const desglosePropuesta = desgloseFacturaAlarma({
+    cuota: costePropuestaMensual,
+    pagoContado: kit ? Number(kit.coste_instalacion) : 0,
+  })
+
   return {
     costeActualMensual,
     costeActualAnual: costeActualMensual * 12,
@@ -44,6 +71,8 @@ export function compararAlarmas(datosCliente, tarifasCatalogo) {
     cubreEquipamiento,
     costePropuestaMensual,
     costePropuestaAnual: costePropuestaMensual * 12,
+    desgloseActual,
+    desglosePropuesta,
     ahorroMensual,
     ahorroAnual,
     ahorroPorcentaje,

@@ -1,33 +1,30 @@
-import { supabase, isSupabaseConfigured } from './supabaseClient'
+import { api } from './apiClient'
+
+/**
+ * Autenticación del Panel de Administración vía sesión PHP (cookie
+ * httpOnly gestionada por api/auth.php). No hay "listener" en tiempo real
+ * como en Supabase Auth: el estado de sesión se comprueba explícitamente
+ * (al cargar la página) y se actualiza tras login/logout.
+ */
 
 export async function iniciarSesion(email, password) {
-  if (!isSupabaseConfigured) {
-    throw new Error('Supabase no está configurado. Añade VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en tu .env')
-  }
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) throw error
-  return data.session
+  const data = await api.post('auth.php', { email, password }, { action: 'login' })
+  return data.user
 }
 
 export async function cerrarSesion() {
-  if (!isSupabaseConfigured) return
-  await supabase.auth.signOut()
+  try {
+    await api.post('auth.php', {}, { action: 'logout' })
+  } catch {
+    // si la sesión ya no era válida, no pasa nada: seguimos limpiando el estado en el cliente
+  }
 }
 
-export async function obtenerSesionActual() {
-  if (!isSupabaseConfigured) return null
-  const { data } = await supabase.auth.getSession()
-  return data.session
-}
-
-export async function esPerfilAdmin(userId) {
-  if (!isSupabaseConfigured || !userId) return false
-  const { data, error } = await supabase.from('perfiles').select('id, rol').eq('id', userId).maybeSingle()
-  if (error) return false
-  return Boolean(data)
-}
-
-export function onAuthStateChange(callback) {
-  if (!isSupabaseConfigured) return { data: { subscription: { unsubscribe() {} } } }
-  return supabase.auth.onAuthStateChange((_event, session) => callback(session))
+export async function obtenerUsuarioActual() {
+  try {
+    const data = await api.get('auth.php', { action: 'me' })
+    return data.user || null
+  } catch {
+    return null
+  }
 }

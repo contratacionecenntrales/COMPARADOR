@@ -1,0 +1,15 @@
+# Bloquea el acceso HTTP directo a los archivos de configuración y a los
+# helpers internos (empiezan por "_"): solo deben incluirse desde PHP, nunca
+# solicitarse directamente por URL.
+<FilesMatch "^(_.*\.php|config\.php|config\.example\.php)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Evita que se liste el contenido del directorio.
+Options -Indexes

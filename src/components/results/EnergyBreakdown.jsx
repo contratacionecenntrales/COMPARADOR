@@ -65,6 +65,11 @@ function LuzBreakdown({ resultado }) {
         items={[
           { label: 'Término potencia', actual: costeActual.terminoPotencia, propuesta: propuestaCoste?.terminoPotencia ?? 0 },
           { label: 'Término energía', actual: costeActual.terminoEnergia, propuesta: propuestaCoste?.terminoEnergia ?? 0 },
+          {
+            label: 'Varios (Bono Social + alquiler contador)',
+            actual: costeActual.financiacionBonoSocial + costeActual.alquilerEquipo,
+            propuesta: (propuestaCoste?.financiacionBonoSocial ?? 0) + (propuestaCoste?.alquilerEquipo ?? 0),
+          },
           { label: 'Impuestos (IE + IVA)', actual: costeActual.impuestoElectricidad + costeActual.iva, propuesta: (propuestaCoste?.impuestoElectricidad ?? 0) + (propuestaCoste?.iva ?? 0) },
           { label: 'Total factura', actual: costeActual.total, propuesta: propuestaCoste?.total ?? costeActual.total },
         ]}

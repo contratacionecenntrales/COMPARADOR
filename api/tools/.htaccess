@@ -1,0 +1,11 @@
+# Bloquea el acceso HTTP a las herramientas de mantenimiento por defecto.
+# Quita o renombra este archivo SOLO temporalmente si necesitas ejecutar
+# generar_hash.php desde el navegador (no tienes acceso SSH), y vuelve a
+# restaurarlo (o borra la carpeta) en cuanto termines.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+</IfModule>

@@ -1,3 +1,5 @@
+import { IVA } from '../constants'
+
 /**
  * Motor de comparación de telefonía / internet.
  *
@@ -73,16 +75,39 @@ export function encontrarMejorPaquete(datosCliente, tarifasCatalogo) {
   return { estrategia: 'solo_movil', componentes, precioMensual }
 }
 
-export function compararTelefonia(datosCliente, tarifasCatalogo) {
-  const costeActualMensual = Number(datosCliente.precioActualMensual) || 0
-  const propuesta = encontrarMejorPaquete(datosCliente, tarifasCatalogo)
+/**
+ * Construye el "Resumen de factura" al estilo Movistar Fusión a partir de
+ * los importes (IVA incluido, como se ven en cualquier factura o tarifa
+ * comercial) de cuotas mensuales, consumos fuera de bono y otros conceptos
+ * (roaming, servicios adicionales...). Descompone en base imponible + IVA,
+ * igual que el bloque "Impuestos" de la factura real.
+ */
+function resumenFactura({ cuotas = 0, consumos = 0, otros = 0 }) {
+  const total = Number(cuotas) + Number(consumos) + Number(otros)
+  const base = total / (1 + IVA)
+  const iva = total - base
+  return { cuotas: Number(cuotas), consumos: Number(consumos), otros: Number(otros), base, iva, total }
+}
 
-  const costePropuestaMensual = propuesta.precioMensual
+export function compararTelefonia(datosCliente, tarifasCatalogo) {
+  const desgloseActual = resumenFactura({
+    cuotas: datosCliente.cuotaMensualActual,
+    consumos: datosCliente.consumosActual,
+    otros: datosCliente.otrosConceptosActual,
+  })
+
+  const propuesta = encontrarMejorPaquete(datosCliente, tarifasCatalogo)
+  const desglosePropuesta = resumenFactura({ cuotas: propuesta.precioMensual })
+
+  const costeActualMensual = desgloseActual.total
+  const costePropuestaMensual = desglosePropuesta.total
   const ahorroMensual = costeActualMensual - costePropuestaMensual
   const ahorroAnual = ahorroMensual * 12
   const ahorroPorcentaje = costeActualMensual > 0 ? (ahorroMensual / costeActualMensual) * 100 : 0
 
   return {
+    desgloseActual,
+    desglosePropuesta,
     costeActualMensual,
     costeActualAnual: costeActualMensual * 12,
     propuesta,

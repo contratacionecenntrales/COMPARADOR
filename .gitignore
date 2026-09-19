@@ -7,3 +7,6 @@ dist-ssr
 .DS_Store
 *.log
 .vite
+
+# Credenciales reales de MySQL (usa api/config.example.php como plantilla)
+api/config.php

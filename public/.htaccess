@@ -1,0 +1,34 @@
+# Integral Connection Consulting — Comparador
+# Enrutado para SPA (React Router) en Apache/Hostalia.
+#
+# - Las peticiones a /api/... NUNCA se reescriben: las sirve PHP tal cual.
+# - Los archivos y carpetas que existan físicamente (JS, CSS, imágenes,
+#   favicon, etc.) se sirven directamente.
+# - Cualquier otra ruta (p.ej. /comparador, /resultados, /admin) se
+#   redirige a index.html para que React Router la resuelva en el cliente.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  RewriteCond %{REQUEST_URI} ^/api/ [NC]
+  RewriteRule ^ - [L]
+
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# Cabeceras de caché razonables para los assets con hash de Vite.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+</IfModule>

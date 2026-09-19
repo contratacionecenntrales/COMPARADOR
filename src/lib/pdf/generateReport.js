@@ -213,15 +213,21 @@ export async function generarInformePDF(resultado, cliente) {
       y = 20
     }
     y = seccionTitulo(doc, 'Telefonía e Internet', y)
+    doc.setFontSize(8)
+    doc.setTextColor(...SLATE)
+    doc.text(
+      resultado.telefonia.propuesta.componentes.map((c) => `${c.tarifa.nombre_tarifa}${c.cantidad > 1 ? ` ×${c.cantidad}` : ''}`).join(' + ') || 'Sin propuesta que cubra la necesidad',
+      14,
+      y
+    )
+    y += 4
+    const { desgloseActual: da, desglosePropuesta: dp } = resultado.telefonia
     autoTable(doc, {
       startY: y,
-      head: [['Concepto', 'Actual /mes', 'Propuesta /mes']],
+      head: [['Resumen de factura', 'Cuotas mensuales', 'Consumos', 'Otros conceptos', 'IVA (21%)', 'Total']],
       body: [
-        [
-          resultado.telefonia.propuesta.componentes.map((c) => `${c.tarifa.nombre_tarifa}${c.cantidad > 1 ? ` ×${c.cantidad}` : ''}`).join(' + ') || 'Sin propuesta',
-          formatEUR(resultado.telefonia.costeActualMensual),
-          formatEUR(resultado.telefonia.costePropuestaMensual),
-        ],
+        ['Actual', formatEUR(da.cuotas), formatEUR(da.consumos), formatEUR(da.otros), formatEUR(da.iva), formatEUR(da.total)],
+        ['Propuesta', formatEUR(dp.cuotas), formatEUR(dp.consumos), formatEUR(dp.otros), formatEUR(dp.iva), formatEUR(dp.total)],
       ],
       theme: 'striped',
       headStyles: { fillColor: NAVY },
@@ -238,15 +244,31 @@ export async function generarInformePDF(resultado, cliente) {
       y = 20
     }
     y = seccionTitulo(doc, 'Alarmas y Seguridad', y)
+    const equipoTexto = (resultado.alarmas.kitPropuesto?.equipamiento || []).join(', ')
     autoTable(doc, {
       startY: y,
-      head: [['Concepto', 'Actual /mes', 'Propuesta /mes']],
+      head: [['Tipo de servicio', 'Cuota mensual', 'Pago al contado', 'Total euros']],
       body: [
         [
-          resultado.alarmas.kitPropuesto?.nombre_kit || 'Sin propuesta',
-          formatEUR(resultado.alarmas.costeActualMensual),
-          formatEUR(resultado.alarmas.costePropuestaMensual),
+          `${resultado.alarmas.kitPropuesto?.nombre_kit || 'Sin propuesta'}${equipoTexto ? `\n${equipoTexto}` : ''}`,
+          formatEUR(resultado.alarmas.desglosePropuesta.cuota),
+          formatEUR(resultado.alarmas.desglosePropuesta.pagoContado),
+          formatEUR(resultado.alarmas.desglosePropuesta.totalPorServicios),
         ],
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: NAVY },
+      styles: { fontSize: 8 },
+      margin: { left: 14, right: 14 },
+    })
+    y = doc.lastAutoTable.finalY + 4
+
+    autoTable(doc, {
+      startY: y,
+      head: [['', 'Base imponible', 'IVA (21%)', 'Total a pagar']],
+      body: [
+        ['Tu factura actual', formatEUR(resultado.alarmas.desgloseActual.base), formatEUR(resultado.alarmas.desgloseActual.iva), formatEUR(resultado.alarmas.desgloseActual.totalAPagar)],
+        ['Nuestra propuesta', formatEUR(resultado.alarmas.desglosePropuesta.base), formatEUR(resultado.alarmas.desglosePropuesta.iva), formatEUR(resultado.alarmas.desglosePropuesta.totalAPagar)],
       ],
       theme: 'striped',
       headStyles: { fillColor: NAVY },
