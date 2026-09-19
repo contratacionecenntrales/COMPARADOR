@@ -216,12 +216,12 @@ export async function generarInformePDF(resultado, cliente) {
     doc.setFontSize(8)
     doc.setTextColor(...SLATE)
     doc.text(
-      resultado.telefonia.propuesta.componentes.map((c) => `${c.tarifa.nombre_tarifa}${c.cantidad > 1 ? ` ×${c.cantidad}` : ''}`).join(' + ') || 'Sin propuesta que cubra la necesidad',
+      resultado.telefonia.propuesta.componentes.map((c) => `${c.etiqueta || c.tarifa.nombre_tarifa}: ${c.tarifa.nombre_tarifa}`).join(' · ') || 'Sin propuesta que cubra la necesidad',
       14,
       y
     )
     y += 4
-    const { desgloseActual: da, desglosePropuesta: dp } = resultado.telefonia
+    const { desgloseActual: da, desglosePropuesta: dp, cambioTitular } = resultado.telefonia
     autoTable(doc, {
       startY: y,
       head: [['Resumen de factura', 'Cuotas mensuales', 'Consumos', 'Otros conceptos', 'IVA (21%)', 'Total']],
@@ -235,6 +235,32 @@ export async function generarInformePDF(resultado, cliente) {
       margin: { left: 14, right: 14 },
     })
     y = doc.lastAutoTable.finalY + 8
+
+    if (cambioTitular) {
+      if (y > 250) {
+        doc.addPage()
+        y = 20
+      }
+      doc.setFontSize(9)
+      doc.setTextColor(...NAVY)
+      doc.setFont(undefined, 'bold')
+      doc.text('Cambio de titularidad solicitado', 14, y)
+      doc.setFont(undefined, 'normal')
+      y += 5
+      autoTable(doc, {
+        startY: y,
+        head: [['', 'Nombre / Razón social', 'NIF/CIF', 'Contacto']],
+        body: [
+          ['Donante (compañía actual)', cambioTitular.donante.nombre || '—', cambioTitular.donante.nif || '—', cambioTitular.donante.contacto || '—'],
+          ['Receptor (nueva contratación)', cambioTitular.receptor.nombre || '—', cambioTitular.receptor.nif || '—', cambioTitular.receptor.contacto || '—'],
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: NAVY },
+        styles: { fontSize: 8 },
+        margin: { left: 14, right: 14 },
+      })
+      y = doc.lastAutoTable.finalY + 8
+    }
   }
 
   // ---- Alarmas ----

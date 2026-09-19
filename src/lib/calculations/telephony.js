@@ -3,22 +3,26 @@ import { IVA } from '../constants'
 /**
  * Motor de comparación de telefonía / internet.
  *
+ * El cliente puede añadir varias fibras (p.ej. varias sedes) y varias
+ * líneas móviles (cada una con su propio número y GB deseados, para poder
+ * calcar una factura real línea a línea).
+ *
  * Estrategia de matching:
- * 1. Si el cliente necesita fibra + líneas móviles, se busca primero un
- *    paquete CONVERGENTE que cubra o mejore la velocidad de fibra y el
- *    número de líneas móviles (y sus GB) — es la opción más económica
- *    habitualmente.
- * 2. Si ningún convergente cubre todas las líneas necesarias, se compone
- *    la propuesta combinando la mejor tarifa de fibra + la mejor tarifa
- *    móvil repetida por cada línea adicional necesaria.
- * 3. Si el cliente solo necesita líneas móviles (sin fibra), se elige la
- *    mejor tarifa móvil que cumpla sus GB y se multiplica por el nº de líneas.
+ * 1. Si hay exactamente UNA fibra y alguna línea móvil, se busca primero un
+ *    paquete CONVERGENTE que cubra la velocidad de esa fibra y el número de
+ *    líneas móviles (con el perfil de datos más exigente de todas ellas) —
+ *    suele ser la opción más económica.
+ * 2. Si no hay convergente que cubra todo (o hay más de una fibra, lo que ya
+ *    no encaja en un único paquete convergente), se compone la propuesta:
+ *    la mejor tarifa de fibra para cada fibra solicitada + la mejor tarifa
+ *    móvil para cada línea, individualmente (cada línea puede necesitar
+ *    GB distintos).
  */
 
-function cumpleDatos(tarifa, datosCliente) {
-  if (datosCliente.datosIlimitadosDeseado) return Boolean(tarifa.datos_ilimitados)
+function cumpleLinea(tarifa, linea) {
+  if (linea.ilimitado) return Boolean(tarifa.datos_ilimitados)
   if (tarifa.datos_ilimitados) return true
-  return (Number(tarifa.gb_datos) || 0) >= Number(datosCliente.gbPorLineaMovil || 0)
+  return (Number(tarifa.gb_datos) || 0) >= Number(linea.gbDeseados || 0)
 }
 
 function ordenarPorPrecio(lista) {
@@ -26,16 +30,23 @@ function ordenarPorPrecio(lista) {
 }
 
 export function encontrarMejorPaquete(datosCliente, tarifasCatalogo) {
-  const numLineas = Number(datosCliente.numLineasMoviles) || 0
+  const fibras = datosCliente.fibras || []
+  const lineasMoviles = datosCliente.lineasMoviles || []
+  const numLineas = lineasMoviles.length
 
-  if (datosCliente.necesitaFibra) {
+  // 1. Intento de paquete convergente (solo tiene sentido con una única fibra)
+  if (fibras.length === 1 && numLineas > 0) {
+    const fibra = fibras[0]
+    const exigeIlimitado = lineasMoviles.some((l) => l.ilimitado)
+    const gbMax = Math.max(0, ...lineasMoviles.filter((l) => !l.ilimitado).map((l) => Number(l.gbDeseados) || 0))
+
     const convergentesValidos = ordenarPorPrecio(
       tarifasCatalogo.filter(
         (t) =>
           t.tipo === 'convergente' &&
-          (Number(t.velocidad_fibra_mb) || 0) >= Number(datosCliente.velocidadFibraDeseada || 0) &&
+          (Number(t.velocidad_fibra_mb) || 0) >= Number(fibra.velocidadDeseada || 0) &&
           Number(t.lineas_moviles_incluidas) >= numLineas &&
-          (numLineas === 0 || cumpleDatos(t, datosCliente))
+          (exigeIlimitado ? t.datos_ilimitados : t.datos_ilimitados || (Number(t.gb_datos) || 0) >= gbMax)
       )
     )
 
@@ -43,36 +54,45 @@ export function encontrarMejorPaquete(datosCliente, tarifasCatalogo) {
       const elegido = convergentesValidos[0]
       return {
         estrategia: 'convergente',
-        componentes: [{ tarifa: elegido, cantidad: 1 }],
+        componentes: [
+          {
+            tarifa: elegido,
+            cantidad: 1,
+            etiqueta: `${fibra.etiqueta || 'Fibra'} + ${numLineas} línea${numLineas > 1 ? 's' : ''} móvil${numLineas > 1 ? 'es' : ''}`,
+          },
+        ],
         precioMensual: Number(elegido.precio_mensual),
       }
     }
-
-    // No hay convergente que cubra todo: componer fibra + N móviles
-    const fibras = ordenarPorPrecio(
-      tarifasCatalogo.filter((t) => t.tipo === 'fibra' && (Number(t.velocidad_fibra_mb) || 0) >= Number(datosCliente.velocidadFibraDeseada || 0))
-    )
-    const moviles = ordenarPorPrecio(tarifasCatalogo.filter((t) => t.tipo === 'movil' && cumpleDatos(t, datosCliente)))
-
-    const mejorFibra = fibras[0] || null
-    const mejorMovil = moviles[0] || null
-
-    const componentes = []
-    if (mejorFibra) componentes.push({ tarifa: mejorFibra, cantidad: 1 })
-    if (mejorMovil && numLineas > 0) componentes.push({ tarifa: mejorMovil, cantidad: numLineas })
-
-    const precioMensual = componentes.reduce((sum, c) => sum + Number(c.tarifa.precio_mensual) * c.cantidad, 0)
-
-    return { estrategia: 'compuesto', componentes, precioMensual }
   }
 
-  // Solo líneas móviles, sin fibra
-  const moviles = ordenarPorPrecio(tarifasCatalogo.filter((t) => t.tipo === 'movil' && cumpleDatos(t, datosCliente)))
-  const mejorMovil = moviles[0] || null
-  const componentes = mejorMovil && numLineas > 0 ? [{ tarifa: mejorMovil, cantidad: numLineas }] : []
+  // 2. Composición: cada fibra y cada línea móvil se cubren por separado
+  const fibrasCatalogo = ordenarPorPrecio(tarifasCatalogo.filter((t) => t.tipo === 'fibra'))
+  const movilesCatalogo = tarifasCatalogo.filter((t) => t.tipo === 'movil')
+
+  const componentes = []
+
+  fibras.forEach((fibra) => {
+    const validas = ordenarPorPrecio(fibrasCatalogo.filter((t) => (Number(t.velocidad_fibra_mb) || 0) >= Number(fibra.velocidadDeseada || 0)))
+    if (validas[0]) {
+      componentes.push({ tarifa: validas[0], cantidad: 1, etiqueta: fibra.etiqueta || 'Fibra' })
+    }
+  })
+
+  lineasMoviles.forEach((linea, idx) => {
+    const validas = ordenarPorPrecio(movilesCatalogo.filter((t) => cumpleLinea(t, linea)))
+    if (validas[0]) {
+      componentes.push({
+        tarifa: validas[0],
+        cantidad: 1,
+        etiqueta: linea.numero ? `Línea ${linea.numero}` : `Línea móvil ${idx + 1}`,
+      })
+    }
+  })
+
   const precioMensual = componentes.reduce((sum, c) => sum + Number(c.tarifa.precio_mensual) * c.cantidad, 0)
 
-  return { estrategia: 'solo_movil', componentes, precioMensual }
+  return { estrategia: fibras.length > 0 ? 'compuesto' : 'solo_movil', componentes, precioMensual }
 }
 
 /**
@@ -116,5 +136,6 @@ export function compararTelefonia(datosCliente, tarifasCatalogo) {
     ahorroMensual,
     ahorroAnual,
     ahorroPorcentaje,
+    cambioTitular: datosCliente.cambioTitular?.activo ? datosCliente.cambioTitular : null,
   }
 }
