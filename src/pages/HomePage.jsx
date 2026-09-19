@@ -13,19 +13,17 @@ const VENTAJAS = [
 export default function HomePage() {
   return (
     <Layout>
-      <section className="bg-navy-gradient text-white">
+      <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 p-2 shadow-lg">
-              <img src={logoIcon} alt="" className="h-full w-full" />
-            </span>
-            <p className="mb-3 flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-widest text-brand-goldLight">
+            <img src={logoIcon} alt="" className="mx-auto mb-6 h-16 w-16" />
+            <p className="mb-3 flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-widest text-brand-goldDark">
               <BadgeCheck size={16} /> Comparador y Auditor Inteligente de Servicios
             </p>
-            <h1 className="text-3xl font-extrabold leading-tight sm:text-5xl">
+            <h1 className="text-3xl font-extrabold leading-tight text-brand-navy sm:text-5xl">
               Descubre cuánto puedes ahorrar en energía, telefonía y alarmas
             </h1>
-            <p className="mt-5 text-lg text-slate-300">
+            <p className="mt-5 text-lg text-slate-600">
               {COMPANY.name} audita tu factura actual y te muestra, en minutos, el ahorro exacto en euros y
               en porcentaje frente a nuestras tarifas.
             </p>
@@ -33,7 +31,7 @@ export default function HomePage() {
               <Link to="/comparador" className="btn-primary text-base">
                 Empezar auditoría gratuita <ArrowRight size={18} />
               </Link>
-              <a href={`tel:${COMPANY.phone.replace(/\s+/g, '')}`} className="btn-outline !border-white/40 !text-white hover:!bg-white/10 text-base">
+              <a href={`tel:${COMPANY.phone.replace(/\s+/g, '')}`} className="btn-outline text-base">
                 Llamar: {COMPANY.phone}
               </a>
             </div>
