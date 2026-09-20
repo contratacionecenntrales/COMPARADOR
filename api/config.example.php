@@ -8,7 +8,8 @@
  */
 
 return [
-    'db_host' => 'localhost',          // normalmente 'localhost' en Hostalia
+    'db_host' => 'localhost',          // en Hostalia puede ser 'localhost' o un host tipo PMYSQLxxx.dns-servicio.com
+    'db_port' => 3306,
     'db_name' => 'tu_base_de_datos',
     'db_user' => 'tu_usuario_mysql',
     'db_pass' => 'tu_contraseña_mysql',

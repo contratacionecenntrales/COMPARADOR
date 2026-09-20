@@ -33,8 +33,9 @@ function icc_db(): PDO
 
     $config = icc_config();
     $dsn = sprintf(
-        'mysql:host=%s;dbname=%s;charset=%s',
+        'mysql:host=%s;port=%s;dbname=%s;charset=%s',
         $config['db_host'],
+        $config['db_port'] ?? 3306,
         $config['db_name'],
         $config['db_charset'] ?? 'utf8mb4'
     );
