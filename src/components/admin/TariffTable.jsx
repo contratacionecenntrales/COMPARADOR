@@ -17,6 +17,17 @@ function CellInput({ column, value, onChange }) {
       </select>
     )
   }
+  if (column.type === 'textarea') {
+    return (
+      <textarea
+        value={value ?? ''}
+        onChange={(e) => onChange(e.target.value)}
+        rows={3}
+        placeholder={column.placeholder}
+        className="w-full min-w-[220px] rounded border border-slate-200 px-2 py-1 text-xs focus:border-brand-gold focus:outline-none"
+      />
+    )
+  }
   return (
     <input
       type={column.type === 'number' ? 'number' : 'text'}

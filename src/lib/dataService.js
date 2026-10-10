@@ -1,10 +1,11 @@
 import { api } from './apiClient'
-import { FALLBACK_ENERGIA, FALLBACK_TELEFONIA, FALLBACK_ALARMAS } from './fallbackData'
+import { FALLBACK_ENERGIA, FALLBACK_TELEFONIA, FALLBACK_ALARMAS, FALLBACK_MERCADO } from './fallbackData'
 
 const FALLBACKS = {
   energia: FALLBACK_ENERGIA,
   telefonia: FALLBACK_TELEFONIA,
   alarmas: FALLBACK_ALARMAS,
+  mercado: FALLBACK_MERCADO,
 }
 
 /**

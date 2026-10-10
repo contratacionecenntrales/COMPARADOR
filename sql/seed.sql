@@ -135,6 +135,32 @@ VALUES
    6, 8, 2, 1, 1, 59.90, 0, 24, 0);
 
 -- ----------------------------------------------------------------------------
+-- TARIFA_MERCADO — catálogo de operadoras competidoras para el Informe de
+-- Auditoría y Optimización de Telecomunicaciones.
+--
+-- ¡IMPORTANTE! Los precios de abajo son un punto de partida orientativo
+-- (no están verificados a la fecha en que tú importes esto). Entra en
+-- Panel de Administración → Mercado y actualízalos con los precios reales
+-- vigentes antes de generar informes para clientes. Marca `recomendada = 1`
+-- en la operadora que quieras destacar por defecto (solo una a la vez) y
+-- rellena sus "características" (una por línea, máx. 4) con su propuesta
+-- de valor real.
+-- ----------------------------------------------------------------------------
+INSERT INTO tarifa_mercado (operador, cuota_mensual, promocion, valoracion, caracteristicas, recomendada)
+VALUES
+  ('Lowi', 55.00, 'Precio fijo', 'Residencial; sin atención de empresa', NULL, 0),
+  ('Digi', 55.00, NULL, 'Residencial; cobertura por verificar', NULL, 0),
+  ('O2', 60.00, 'Sin permanencia', 'Residencial; sin soporte de empresa', NULL, 0),
+  ('Telecable', 71.90, '2.ª línea gratis', 'Solo Asturias; sin servicios de empresa', NULL, 0),
+  ('Vodafone Business', 82.66, 'Precio estable',
+   '2 líneas ilimitadas, soporte 24/7, MultiSIM, Netflix',
+   '2 líneas ilimitadas 5G y MultiSIM para trabajar desde cualquier dispositivo.\nSoporte informático 24/7 y Secure Net incluidos.\nVodafone TV con Netflix y 200 minutos internacionales.\nSin cargos sorpresa: bloqueamos terceros, adultos y contenidos a la carta.',
+   1),
+  ('MásMóvil Empresas', 82.91, '79,28 € × 3 meses', 'Sube tras la promoción; TV aparte', NULL, 0),
+  ('Yoigo Empresas', 91.86, '61,61 € × 3 meses', 'Fuerte subida tras la promoción', NULL, 0),
+  ('Orange Empresas', 97.41, 'Precio definitivo', 'La más cara; permanencia 12 meses', NULL, 0);
+
+-- ----------------------------------------------------------------------------
 -- ADMIN_USUARIOS — usuario administrador de ejemplo
 --
 -- ¡IMPORTANTE! Cambia el email y genera tu propio hash de contraseña antes de

@@ -59,6 +59,18 @@ const ICC_CATALOGOS = [
         'enteros' => ['num_camaras', 'num_sensores', 'num_mandos', 'permanencia_meses'],
         'listas' => ['equipamiento'],
     ],
+    'mercado' => [
+        'tabla' => 'tarifa_mercado',
+        'orden' => 'cuota_mensual',
+        'columnas' => [
+            'operador', 'cuota_mensual', 'promocion', 'valoracion', 'caracteristicas',
+            'recomendada', 'activo',
+        ],
+        'booleanos' => ['recomendada', 'activo'],
+        'numericos' => ['cuota_mensual'],
+        'enteros' => [],
+        'listas' => [],
+    ],
 ];
 
 /**

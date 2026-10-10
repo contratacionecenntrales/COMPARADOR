@@ -70,6 +70,26 @@ export const COLUMNAS_ALARMAS = [
   { key: 'activo', label: 'Activo', type: 'boolean' },
 ]
 
+export const COLUMNAS_MERCADO = [
+  { key: 'operador', label: 'Operadora', type: 'text' },
+  { key: 'cuota_mensual', label: 'Cuota €/mes', type: 'number', step: '0.01' },
+  { key: 'promocion', label: 'Promoción', type: 'text' },
+  { key: 'valoracion', label: 'Valoración breve', type: 'text' },
+  { key: 'caracteristicas', label: 'Características (una por línea, máx. 4)', type: 'textarea', placeholder: 'Una característica por línea' },
+  { key: 'recomendada', label: 'Recomendada', type: 'boolean' },
+  { key: 'activo', label: 'Activo', type: 'boolean' },
+]
+
+export const FILA_VACIA_MERCADO = {
+  operador: 'Nueva operadora',
+  cuota_mensual: 0,
+  promocion: '',
+  valoracion: '',
+  caracteristicas: '',
+  recomendada: false,
+  activo: true,
+}
+
 export const FILA_VACIA_ALARMAS = {
   nombre_kit: 'Nuevo kit de alarma',
   tipo_kit: 'basica',

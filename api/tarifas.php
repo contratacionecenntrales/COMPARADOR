@@ -4,7 +4,7 @@ require_once __DIR__ . '/_catalogos.php';
 
 $catalogo = $_GET['catalogo'] ?? '';
 if (!isset(ICC_CATALOGOS[$catalogo])) {
-    icc_error('Catálogo no válido. Usa energia, telefonia o alarmas.', 400);
+    icc_error('Catálogo no válido. Usa energia, telefonia, alarmas o mercado.', 400);
 }
 
 $def = ICC_CATALOGOS[$catalogo];

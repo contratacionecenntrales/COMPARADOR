@@ -170,6 +170,28 @@ CREATE TABLE IF NOT EXISTS tarifa_alarmas (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
+-- tarifa_mercado — catálogo de operadoras COMPETIDORAS (no propias) usado por
+-- el Informe de Auditoría y Optimización de Telecomunicaciones: comparativa
+-- de 8 operadoras reales del mercado frente al operador actual del cliente.
+-- Lo mantiene el equipo comercial con los precios de referencia vigentes.
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS tarifa_mercado (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  operador VARCHAR(100) NOT NULL,
+  cuota_mensual DECIMAL(10,2) NOT NULL DEFAULT 0,
+  promocion VARCHAR(255) DEFAULT NULL,
+  valoracion VARCHAR(255) DEFAULT NULL,
+  caracteristicas TEXT DEFAULT NULL, -- una característica por línea (máx. 4 recomendadas)
+  recomendada TINYINT(1) NOT NULL DEFAULT 0,
+  activo TINYINT(1) NOT NULL DEFAULT 1,
+
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  INDEX idx_tarifa_mercado_activo (activo, cuota_mensual)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------------------------
 -- auditorias_clientes — histórico de comparativas generadas
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS auditorias_clientes (

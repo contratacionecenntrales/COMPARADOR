@@ -169,3 +169,48 @@ export const FALLBACK_ALARMAS = [
     cuota_mensual: 59.90, coste_instalacion: 0, permanencia_meses: 24, destacada: false, activo: true,
   },
 ]
+
+// Catálogo de operadoras COMPETIDORAS (no propias) para el Informe de
+// Auditoría y Optimización de Telecomunicaciones. Precios orientativos: se
+// mantienen editables desde Panel de Administración → Mercado.
+export const FALLBACK_MERCADO = [
+  {
+    id: id(), operador: 'Lowi', cuota_mensual: 55.00, promocion: 'Precio fijo',
+    valoracion: 'Residencial; sin atención de empresa', caracteristicas: null, recomendada: false, activo: true,
+  },
+  {
+    id: id(), operador: 'Digi', cuota_mensual: 55.00, promocion: null,
+    valoracion: 'Residencial; cobertura por verificar', caracteristicas: null, recomendada: false, activo: true,
+  },
+  {
+    id: id(), operador: 'O2', cuota_mensual: 60.00, promocion: 'Sin permanencia',
+    valoracion: 'Residencial; sin soporte de empresa', caracteristicas: null, recomendada: false, activo: true,
+  },
+  {
+    id: id(), operador: 'Telecable', cuota_mensual: 71.90, promocion: '2.ª línea gratis',
+    valoracion: 'Solo Asturias; sin servicios de empresa', caracteristicas: null, recomendada: false, activo: true,
+  },
+  {
+    id: id(), operador: 'Vodafone Business', cuota_mensual: 82.66, promocion: 'Precio estable',
+    valoracion: '2 líneas ilimitadas, soporte 24/7, MultiSIM, Netflix',
+    caracteristicas: [
+      '2 líneas ilimitadas 5G y MultiSIM para trabajar desde cualquier dispositivo.',
+      'Soporte informático 24/7 y Secure Net incluidos.',
+      'Vodafone TV con Netflix y 200 minutos internacionales.',
+      'Sin cargos sorpresa: bloqueamos terceros, adultos y contenidos a la carta.',
+    ].join('\n'),
+    recomendada: true, activo: true,
+  },
+  {
+    id: id(), operador: 'MásMóvil Empresas', cuota_mensual: 82.91, promocion: '79,28 € × 3 meses',
+    valoracion: 'Sube tras la promoción; TV aparte', caracteristicas: null, recomendada: false, activo: true,
+  },
+  {
+    id: id(), operador: 'Yoigo Empresas', cuota_mensual: 91.86, promocion: '61,61 € × 3 meses',
+    valoracion: 'Fuerte subida tras la promoción', caracteristicas: null, recomendada: false, activo: true,
+  },
+  {
+    id: id(), operador: 'Orange Empresas', cuota_mensual: 97.41, promocion: 'Precio definitivo',
+    valoracion: 'La más cara; permanencia 12 meses', caracteristicas: null, recomendada: false, activo: true,
+  },
+]

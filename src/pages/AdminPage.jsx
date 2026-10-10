@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { LogOut, Zap, Smartphone, ShieldCheck, History, Loader2, Users, CalendarDays } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { LogOut, Zap, Smartphone, ShieldCheck, History, Loader2, Users, CalendarDays, TrendingUp, FileBarChart } from 'lucide-react'
 import Layout from '../components/layout/Layout'
 import AdminLogin from '../components/admin/AdminLogin'
 import TariffTable from '../components/admin/TariffTable'
@@ -13,6 +14,8 @@ import {
   FILA_VACIA_TELEFONIA,
   COLUMNAS_ALARMAS,
   FILA_VACIA_ALARMAS,
+  COLUMNAS_MERCADO,
+  FILA_VACIA_MERCADO,
 } from '../components/admin/tariffColumns'
 import { obtenerUsuarioActual, cerrarSesion } from '../lib/authService'
 
@@ -22,6 +25,7 @@ function tabsPara(rol) {
     { key: 'energia', label: 'Energía', icon: Zap },
     { key: 'telefonia', label: 'Telefonía', icon: Smartphone },
     { key: 'alarmas', label: 'Alarmas', icon: ShieldCheck },
+    { key: 'mercado', label: 'Mercado', icon: TrendingUp },
     { key: 'historico', label: 'Histórico de auditorías', icon: History },
   ]
   if (rol === 'admin' || rol === 'jefe_equipo') {
@@ -68,15 +72,20 @@ export default function AdminPage() {
               Sesión: {usuario.email} · {usuario.rol === 'admin' ? 'Administrador' : usuario.rol === 'jefe_equipo' ? 'Jefe de equipo' : 'Gestor comercial'}
             </p>
           </div>
-          <button
-            onClick={async () => {
-              await cerrarSesion()
-              setUsuario(null)
-            }}
-            className="btn-ghost"
-          >
-            <LogOut size={16} /> Cerrar sesión
-          </button>
+          <div className="flex gap-2">
+            <Link to="/auditoria-telecom" className="btn-primary">
+              <FileBarChart size={16} /> Auditoría de Telecomunicaciones
+            </Link>
+            <button
+              onClick={async () => {
+                await cerrarSesion()
+                setUsuario(null)
+              }}
+              className="btn-ghost"
+            >
+              <LogOut size={16} /> Cerrar sesión
+            </button>
+          </div>
         </div>
 
         <div className="mb-6 flex flex-wrap gap-2 border-b border-slate-200 pb-2">
@@ -103,6 +112,16 @@ export default function AdminPage() {
         )}
         {tab === 'alarmas' && (
           <TariffTable catalogo="alarmas" title="Kits de alarma" columns={COLUMNAS_ALARMAS} emptyRow={FILA_VACIA_ALARMAS} />
+        )}
+        {tab === 'mercado' && (
+          <div>
+            <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              Catálogo de operadoras competidoras para el Informe de Auditoría y Optimización de Telecomunicaciones.
+              Marca una sola fila como "Recomendada" (la que aparecerá destacada en dorado) y rellena sus
+              características reales. Mantén los precios actualizados.
+            </p>
+            <TariffTable catalogo="mercado" title="Tarifas de mercado (competidoras)" columns={COLUMNAS_MERCADO} emptyRow={FILA_VACIA_MERCADO} />
+          </div>
         )}
         {tab === 'historico' && <AuditsHistory />}
       </div>
