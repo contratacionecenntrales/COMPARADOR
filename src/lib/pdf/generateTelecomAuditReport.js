@@ -61,9 +61,9 @@ function coloresPill(nivel) {
 
 function dibujarCabecera(doc, pageWidth, logoData, codigo, fechaTexto) {
   if (logoData) {
-    const logoAlto = 8
+    const logoAlto = 11.5
     const logoAncho = (logoData.width / logoData.height) * logoAlto
-    doc.addImage(logoData.dataUrl, 'PNG', MARGEN, 10, logoAncho, logoAlto)
+    doc.addImage(logoData.dataUrl, 'PNG', MARGEN, 9, logoAncho, logoAlto)
   }
   doc.setFont(undefined, 'bold')
   doc.setFontSize(9)
@@ -74,13 +74,13 @@ function dibujarCabecera(doc, pageWidth, logoData, codigo, fechaTexto) {
   doc.text(`Emitido el ${fechaTexto} · Válido 30 días`, pageWidth - MARGEN, 17.5, { align: 'right' })
   doc.setDrawColor(...BORDER)
   doc.setLineWidth(0.3)
-  doc.line(MARGEN, 24, pageWidth - MARGEN, 24)
+  doc.line(MARGEN, 26, pageWidth - MARGEN, 26)
 }
 
 function nuevaPagina(doc, pageWidth, logoData, codigo, fechaTexto) {
   doc.addPage()
   dibujarCabecera(doc, pageWidth, logoData, codigo, fechaTexto)
-  return 36
+  return 38
 }
 
 function asegurarEspacio(doc, pageWidth, logoData, codigo, fechaTexto, y, necesario, limite = 265) {
@@ -112,18 +112,18 @@ function tituloSeccion(doc, pageWidth, numero, texto, y) {
 
 function tarjetaStat(doc, x, y, w, h, { bg, labelColor, label, valorColor, valor, caption, captionColor }) {
   doc.setFillColor(...bg)
-  doc.roundedRect(x, y, w, h, 2.5, 2.5, 'F')
+  doc.roundedRect(x, y, w, h, 3, 3, 'F')
   doc.setFont(undefined, 'bold')
   doc.setFontSize(7.5)
   doc.setTextColor(...labelColor)
-  doc.text(label, x + 5, y + 7)
+  doc.text(label, x + 6.5, y + 8.5)
   doc.setFontSize(18)
   doc.setTextColor(...valorColor)
-  doc.text(valor, x + 5, y + 18)
+  doc.text(valor, x + 6.5, y + 19.5)
   doc.setFont(undefined, 'normal')
   doc.setFontSize(7.5)
   doc.setTextColor(...captionColor)
-  doc.text(caption, x + 5, y + 25)
+  doc.text(caption, x + 6.5, y + 26.5)
 }
 
 function dibujarPastillaDiagnostico(doc, valor, x, y) {
@@ -256,7 +256,7 @@ export async function generarInformeTelecomPDF(resultado) {
   cabecera()
 
   // ---- Banda navy: título + metadatos ----
-  const bandaY = 30
+  const bandaY = 32
   const bandaH = 62
   doc.setFillColor(...NAVY)
   doc.rect(MARGEN, bandaY, pageWidth - MARGEN * 2, bandaH, 'F')
@@ -306,7 +306,7 @@ export async function generarInformeTelecomPDF(resultado) {
 
   // ---- 3 tarjetas stat ----
   const statW = (pageWidth - MARGEN * 2 - 8) / 3
-  const statH = 30
+  const statH = 32
   const recomendado = resultado.recomendado
   tarjetaStat(doc, MARGEN, y, statW, statH, {
     bg: RED_LIGHT,
@@ -390,25 +390,25 @@ export async function generarInformeTelecomPDF(resultado) {
 
   if (resultado.hallazgos.length) {
     y = espacio(y, 32)
-    const cardW = (pageWidth - MARGEN * 2 - (resultado.hallazgos.length - 1) * 4) / resultado.hallazgos.length
-    const cardH = 26
+    const cardW = (pageWidth - MARGEN * 2 - (resultado.hallazgos.length - 1) * 5) / resultado.hallazgos.length
+    const cardH = 28
     resultado.hallazgos.forEach((h, idx) => {
-      const cx = MARGEN + idx * (cardW + 4)
+      const cx = MARGEN + idx * (cardW + 5)
       doc.setFillColor(255, 255, 255)
       doc.setDrawColor(...BORDER)
-      doc.rect(cx, y, cardW, cardH, 'FD')
+      doc.roundedRect(cx, y, cardW, cardH, 1.5, 1.5, 'FD')
       doc.setFillColor(...RED)
-      doc.rect(cx, y, 1.1, cardH, 'F')
+      doc.rect(cx, y, 1.3, cardH, 'F')
       doc.setFont(undefined, 'bold')
       doc.setFontSize(8.4)
       doc.setTextColor(...NAVY)
-      doc.text(doc.splitTextToSize(h.titulo, cardW - 8), cx + 5, y + 7)
+      doc.text(doc.splitTextToSize(h.titulo, cardW - 11), cx + 6.5, y + 8)
       doc.setFont(undefined, 'normal')
       doc.setFontSize(7.4)
       doc.setTextColor(...SLATE)
-      doc.text(doc.splitTextToSize(h.descripcion, cardW - 8), cx + 5, y + 14)
+      doc.text(doc.splitTextToSize(h.descripcion, cardW - 11), cx + 6.5, y + 15)
     })
-    y += cardH + 8
+    y += cardH + 9
   }
 
   // ---- 2. Comparativa de mercado ----
@@ -570,27 +570,27 @@ export async function generarInformeTelecomPDF(resultado) {
   y = bulletsDosColumnas(doc, bulletsICC, MARGEN, y, pageWidth - MARGEN * 2)
 
   // ---- CTA + aceptación ----
-  y = espacio(y, 70, 230)
+  y = espacio(y, 94, 208)
   const ctaW = (pageWidth - MARGEN * 2) * 0.58
-  const aceptW = pageWidth - MARGEN * 2 - ctaW - 6
-  const ctaH = 62
+  const aceptW = pageWidth - MARGEN * 2 - ctaW - 7
+  const ctaH = 86
 
   doc.setFillColor(...NAVY)
-  doc.rect(MARGEN, y, ctaW, ctaH, 'F')
+  doc.roundedRect(MARGEN, y, ctaW, ctaH, 3, 3, 'F')
   doc.setFont(undefined, 'bold')
-  doc.setFontSize(12)
+  doc.setFontSize(12.5)
   doc.setTextColor(255, 255, 255)
-  doc.text('Cada mes sin cambiar le cuesta', MARGEN + 6, y + 10)
-  doc.setFontSize(16)
+  doc.text('Cada mes sin cambiar le cuesta', MARGEN + 7, y + 12)
+  doc.setFontSize(17)
   doc.setTextColor(...GOLD)
-  doc.text(`${formatEUR(Math.abs(resultado.diferenciaMensual))}.`, MARGEN + 6, y + 18)
+  doc.text(`${formatEUR(Math.abs(resultado.diferenciaMensual))}.`, MARGEN + 7, y + 21)
   doc.setFont(undefined, 'normal')
-  doc.setFontSize(7.8)
+  doc.setFontSize(7.9)
   doc.setTextColor(220, 223, 230)
   doc.text(
-    doc.splitTextToSize('Firme hoy y nos encargamos de todo. Migración en 5–14 días, sin cortes de servicio y conservando sus números.', ctaW - 12),
-    MARGEN + 6,
-    y + 25
+    doc.splitTextToSize('Firme hoy y nos encargamos de todo. Migración en 5–14 días, sin cortes de servicio y conservando sus números.', ctaW - 14),
+    MARGEN + 7,
+    y + 28
   )
 
   const pasos = [
@@ -598,56 +598,85 @@ export async function generarInformeTelecomPDF(resultado) {
     ['2 · Gestionamos', 'Portabilidad y alta'],
     ['3 · Ahorra', 'Desde la primera factura'],
   ]
-  const pasoW = (ctaW - 12 - 8) / 3
+  const pasoW = (ctaW - 14 - 2 * 4) / 3
+  const pasosY = y + 40
+  const pasosH = 18
   pasos.forEach(([titulo, sub], idx) => {
-    const px = MARGEN + 6 + idx * (pasoW + 4)
-    doc.setFillColor(35, 44, 58)
-    doc.rect(px, y + 35, pasoW, 14, 'F')
+    const px = MARGEN + 7 + idx * (pasoW + 4)
+    doc.setFillColor(37, 48, 64)
+    doc.roundedRect(px, pasosY, pasoW, pasosH, 1.5, 1.5, 'F')
+    doc.setFillColor(...GOLD)
+    doc.rect(px, pasosY, 1, pasosH, 'F')
     doc.setFont(undefined, 'bold')
     doc.setFontSize(7.6)
     doc.setTextColor(...GOLD)
-    doc.text(titulo, px + 2.5, y + 40.5)
+    doc.text(titulo, px + 3.5, pasosY + 6.5)
     doc.setFont(undefined, 'normal')
     doc.setFontSize(6.6)
     doc.setTextColor(220, 223, 230)
-    doc.text(sub, px + 2.5, y + 45)
+    doc.text(doc.splitTextToSize(sub, pasoW - 6), px + 3.5, pasosY + 11.5)
   })
 
+  // Botón CTA de contacto: pastilla dorada con icono de sobre
+  const botonH = 15
+  const botonY = pasosY + pasosH + 7
   doc.setFillColor(...GOLD)
-  doc.rect(MARGEN, y + ctaH - 10, ctaW, 10, 'F')
+  doc.roundedRect(MARGEN + 7, botonY, ctaW - 14, botonH, 2.2, 2.2, 'F')
+  const iconoX = MARGEN + 14
+  const iconoY = botonY + botonH / 2 - 2
+  doc.setDrawColor(...NAVY)
+  doc.setLineWidth(0.45)
+  doc.setFillColor(255, 255, 255)
+  doc.rect(iconoX, iconoY, 5.5, 4, 'FD')
+  doc.line(iconoX, iconoY, iconoX + 2.75, iconoY + 2.2)
+  doc.line(iconoX + 2.75, iconoY + 2.2, iconoX + 5.5, iconoY)
   doc.setFont(undefined, 'bold')
-  doc.setFontSize(7.8)
+  doc.setFontSize(8.6)
   doc.setTextColor(...NAVY)
-  doc.text(`Escriba a ${resultado.consultor?.nombre || 'su consultor/a'}: ${resultado.consultor?.email || COMPANY.email}`, MARGEN + ctaW / 2, y + ctaH - 4, {
-    align: 'center',
-  })
+  doc.text(`Escriba a ${resultado.consultor?.nombre || 'su consultor/a'}`, iconoX + 9, botonY + botonH / 2 - 1.3)
+  doc.setFont(undefined, 'normal')
+  doc.setFontSize(7.4)
+  doc.text(resultado.consultor?.email || COMPANY.email, iconoX + 9, botonY + botonH / 2 + 3.3)
 
-  const aceptX = MARGEN + ctaW + 6
+  const aceptX = MARGEN + ctaW + 7
   doc.setDrawColor(...BORDER)
   doc.setFillColor(255, 255, 255)
-  doc.rect(aceptX, y, aceptW, ctaH, 'FD')
+  doc.roundedRect(aceptX, y, aceptW, ctaH, 3, 3, 'FD')
+  doc.setFont(undefined, 'bold')
+  doc.setFontSize(8)
+  doc.setTextColor(...NAVY)
+  doc.text('ACEPTACIÓN DEL PRESUPUESTO', aceptX + 6, y + 10)
+
+  doc.setFillColor(...GOLD_LIGHT)
+  doc.roundedRect(aceptX + 5, y + 16, aceptW - 10, 15, 1.5, 1.5, 'F')
+  doc.setDrawColor(...GOLD)
+  doc.setLineWidth(0.5)
+  doc.rect(aceptX + 8, y + 20, 4.4, 4.4)
   doc.setFont(undefined, 'bold')
   doc.setFontSize(7.6)
   doc.setTextColor(...NAVY)
-  doc.text('ACEPTACIÓN DEL PRESUPUESTO', aceptX + 5, y + 8)
+  doc.text(`${recomendado?.operador || ''} (recomendada)`, aceptX + 15.5, y + 22.8, { maxWidth: aceptW - 24 })
   doc.setFont(undefined, 'normal')
-  doc.setFontSize(7.4)
+  doc.setFontSize(7.2)
+  doc.setTextColor(...SLATE)
+  doc.text(`Ahorro ${formatEUR(resultado.ahorroAnual)}/año`, aceptX + 15.5, y + 27)
+
   doc.setDrawColor(...SLATE)
-  doc.rect(aceptX + 5, y + 13, 3, 3)
-  doc.text(`${recomendado?.operador || ''} (recomendada) · ahorro ${formatEUR(resultado.ahorroAnual)}/año`, aceptX + 10, y + 15.5, {
-    maxWidth: aceptW - 15,
-  })
-  doc.rect(aceptX + 5, y + 23, 3, 3)
-  doc.text('Otra opción: ____________________', aceptX + 10, y + 25.5)
+  doc.setLineWidth(0.4)
+  doc.rect(aceptX + 8, y + 36.5, 4, 4)
+  doc.setFontSize(7.4)
+  doc.setTextColor(...NAVY)
+  doc.text('Otra opción: ____________________', aceptX + 15, y + 39.3)
 
   doc.setFontSize(7)
   doc.setTextColor(...SLATE)
-  doc.text('Nombre y apellidos', aceptX + 5, y + 36)
-  doc.line(aceptX + 5, y + 44, aceptX + aceptW - 5, y + 44)
-  doc.text('DNI / CIF', aceptX + 5, y + 50)
-  doc.line(aceptX + 5, y + 56, aceptX + aceptW - 5, y + 56)
+  doc.text('Nombre y apellidos', aceptX + 6, y + 52)
+  doc.setDrawColor(...BORDER)
+  doc.line(aceptX + 6, y + 60, aceptX + aceptW - 6, y + 60)
+  doc.text('DNI / CIF', aceptX + 6, y + 68)
+  doc.line(aceptX + 6, y + 76, aceptX + aceptW - 6, y + 76)
 
-  y += ctaH + 10
+  y += ctaH + 11
 
   // ---- Firma del consultor ----
   y = espacio(y, 26)
